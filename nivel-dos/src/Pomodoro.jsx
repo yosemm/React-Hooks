@@ -8,7 +8,7 @@ function Pomodoro() {
     const [timeLeft, setTimeLeft] = useState(1500);
     const [isRunning, setIsRunning] = useState(false);
     // Declara estados mode y sessions
-    const [mode, setMode] = useState('work');
+    const [mode, setMode] = useState("work");
     const [sessions, setSessions] = useState([]);
 
     // Implementa useEffect para timeLeft
@@ -67,11 +67,14 @@ function Pomodoro() {
     const resetTimer = () => {
         setIsRunning(false);
         setTimeLeft(1500);
+        setMode("work");
+        setSessions([]);
     };
 
     return (
         <div>
             <h1>Timer Pomodoro</h1>
+            <h3>Modo: {mode === "work" ? 'Trabajo' : 'Descanso'}</h3>
             <h2>{formatTime(timeLeft)}</h2>
             <button onClick={toggleTimer}>
                 {isRunning ? 'Pausar' : 'Iniciar'}
@@ -79,6 +82,16 @@ function Pomodoro() {
             <button onClick={resetTimer}>
                 Reiniciar
             </button>
+            <h3>Historial de Sesiones:</h3>
+            <ul>
+                {sessions.map((session, index) => (
+                    <li key={session.id}>
+                        <span><b>Sesión {index + 1}</b></span>
+                        <span><i>Duración:</i> {formatTime(session.duration)} </span>
+                        <span><i>Hora de finalización:</i> {session.completedAt.toLocaleTimeString()} </span>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
