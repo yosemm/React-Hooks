@@ -1,11 +1,35 @@
 import { useState, useEffect, useRef } from 'react';
 
+const WORK_TIME = 1500;
+const BREAK_TIME = 300;
+
 function Pomodoro() {
     // Declara los estados timeLeft e isRunning
     const [timeLeft, setTimeLeft] = useState(1500);
     const [isRunning, setIsRunning] = useState(false);
+    // Declara estados mode y sessions
+    const [mode, setMode] = useState('work');
+    const [sessions, setSessions] = useState([]);
+
+    // Implementa useEffect para timeLeft
+    useEffect(() => {
+        if (timeLeft === 0) {
+            if (mode === "work") {
+                setSessions((prevSessions) => [...prevSessions, { id: Date.now(), type: "work", duration: WORK_TIME, completedAt: new Date() }]);
+                setMode("break");
+                setTimeLeft(BREAK_TIME);
+                setIsRunning(true);
+            } else if (mode === "break") {
+                setMode("work");
+                setTimeLeft(WORK_TIME);
+                setIsRunning(true);
+            }
+        }
+    }, [timeLeft, mode]);
+
     // Declara intervalRef con useRef
     const intervalRef = useRef(null);
+
     // Implementa el useEffect para el timer
     //   - Crea el intervalo si isRunning && timeLeft > 0
     //   - Detén si timeLeft === 0
