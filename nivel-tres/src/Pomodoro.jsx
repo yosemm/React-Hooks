@@ -5,7 +5,9 @@ const BREAK_TIME = 300;
 
 function Pomodoro() {
     // Declara los estados timeLeft e isRunning
-    const [timeLeft, setTimeLeft] = useState(1500);
+    const [workMins, setWorkMins] = useState(25);
+    const [breakMins, setBreakMins] = useState(5);
+    const [timeLeft, setTimeLeft] = useState(25 * 60);
     const [isRunning, setIsRunning] = useState(false);
     // Declara estados mode y sessions
     const [mode, setMode] = useState("work");
@@ -15,17 +17,17 @@ function Pomodoro() {
     useEffect(() => {
         if (timeLeft === 0) {
             if (mode === "work") {
-                setSessions((prevSessions) => [...prevSessions, { id: Date.now(), type: "work", duration: WORK_TIME, completedAt: new Date() }]);
+                setSessions((prevSessions) => [...prevSessions, { id: Date.now(), type: "work", duration: workMins * 60, completedAt: new Date() }]);
                 setMode("break");
-                setTimeLeft(BREAK_TIME);
+                setTimeLeft(breakMins * 60);
                 setIsRunning(true);
             } else if (mode === "break") {
                 setMode("work");
-                setTimeLeft(WORK_TIME);
+                setTimeLeft(workMins * 60);
                 setIsRunning(true);
             }
         }
-    }, [timeLeft, mode]);
+    }, [timeLeft, mode, workMins, breakMins]);
 
     // Declara intervalRef con useRef
     const intervalRef = useRef(null);
@@ -66,22 +68,52 @@ function Pomodoro() {
 
     const resetTimer = () => {
         setIsRunning(false);
-        setTimeLeft(1500);
+        setTimeLeft(workMins * 60);
         setMode("work");
         setSessions([]);
     };
+    // Funcion para mostrar inputs
+    function minutesInput(isRunning, value, type) {
+        if (isRunning === false) {
+            return <input type="number" min="1" max="60" value={value} onChange={(e) => readInputs(e, type)} />;
+        } else {
+            return <input type="number" min="1" max="60" value={value} disabled />;
+        };
+    };
+    // Funcion para leer los inputs
+    function readInputs(e, type) {
+        const newValue = parseInt(e.target.value, 10);
 
+        if (isNaN(newValue) || newValue < 1 || newValue > 60) {
+            return;
+        }
+
+        if (type === "work") {
+            setWorkMins(newValue);
+            if (mode === "work") {
+                setTimeLeft(newValue * 60);
+            }
+        } else if (type === "break") {
+            setBreakMins(newValue);
+            if (mode === "break") {
+                setTimeLeft(newValue * 60);
+            }
+        }
+    }
     return (
         <div>
             <h1>Timer Pomodoro</h1>
             <h3>Modo: {mode === "work" ? 'Trabajo' : 'Descanso'}</h3>
             <h2>{formatTime(timeLeft)}</h2>
-            <button onClick={toggleTimer}>
+            <button className="timer-btn" onClick={toggleTimer}>
                 {isRunning ? 'Pausar' : 'Iniciar'}
             </button>
-            <button onClick={resetTimer}>
+            <button className="timer-btn" onClick={resetTimer}>
                 Reiniciar
             </button>
+            <h2>Configurar:</h2>
+            <span><b>Minutos de trabajo: {minutesInput(isRunning, workMins, "work")}</b></span><br></br>
+            <span><b>Minutos de descanso: {minutesInput(isRunning, breakMins, "break")}</b></span>
             <h3>Historial de Sesiones:</h3>
             <ul>
                 {sessions.map((session, index) => (
@@ -95,5 +127,4 @@ function Pomodoro() {
         </div>
     );
 }
-
 export default Pomodoro;
