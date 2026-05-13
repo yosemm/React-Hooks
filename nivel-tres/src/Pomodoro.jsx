@@ -72,6 +72,25 @@ function Pomodoro() {
         setMode("work");
         setSessions([]);
     };
+
+    const savePartialSession = () => {
+        const tiempoTotal = mode === "work" ? workMins * 60 : breakMins * 60;
+        const tiempoTranscurrido = tiempoTotal - timeLeft;
+
+        if (tiempoTranscurrido <= 0) {
+            return;
+        }
+
+        setSessions((prevSessions) => [
+            ...prevSessions,
+            {
+                id: Date.now(),
+                type: mode === "work" ? "work (parcial)" : "break (parcial)",
+                duration: tiempoTranscurrido,
+                completedAt: new Date(),
+            },
+        ]);
+    };
     // Funcion para mostrar inputs
     function minutesInput(isRunning, value, type) {
         if (isRunning === false) {
@@ -130,6 +149,9 @@ function Pomodoro() {
             <button className="timer-btn" onClick={resetTimer}>
                 Reiniciar
             </button>
+            <button className="timer-btn" onClick={savePartialSession}>
+                Guardar sesion
+            </button>
             <h2>Configurar:</h2>
             <span><b>Minutos de trabajo: {minutesInput(isRunning, workMins, "work")}</b></span><br></br>
             <span><b>Minutos de descanso: {minutesInput(isRunning, breakMins, "break")}</b></span>
@@ -138,11 +160,15 @@ function Pomodoro() {
                 {sessions.map((session, index) => (
                     <li key={session.id}>
                         <span><b>Sesión {index + 1}</b></span>
+                        <span> | <i>Tipo:</i> {session.type} | </span>
                         <span> | <i>Duración:</i> {formatTime(session.duration)} | </span>
                         <span><i>Hora de finalización:</i> {session.completedAt.toLocaleTimeString()} </span>
                     </li>
                 ))}
             </ul>
+            <h3>Estadisticas:</h3>
+            <p><b>Sesiones de trabajo:</b> {sessions.filter((s) => s.mode === "work").length}</p>
+            <p><b>Duración total de trabajo:</b> {formatTime(sessions.filter((s) => s.mode === "work").reduce((total, s) => total + s.duration, 0))}</p>
         </div>
     );
 }
