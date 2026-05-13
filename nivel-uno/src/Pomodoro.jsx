@@ -5,7 +5,7 @@ function Pomodoro() {
     const [timeLeft, setTimeLeft] = useState(1500);
     const [isRunning, setIsRunning] = useState(false);
     // Declara intervalRef con useRef
-    intervalRef = useRef(null);
+    const intervalRef = useRef(null);
     // Implementa el useEffect para el timer
     //   - Crea el intervalo si isRunning && timeLeft > 0
     //   - Detén si timeLeft === 0
@@ -36,10 +36,25 @@ function Pomodoro() {
         return `${displayMins}:${displaySecs}`;
     };
     // TODO 5: Funciones toggleTimer y resetTimer
+    const toggleTimer = () => {
+        setIsRunning(!isRunning);
+    };
+
+    const resetTimer = () => {
+        setIsRunning(false);
+        setTimeLeft(1500);
+    };
 
     return (
         <div>
-            {/* TODO 6: Muestra el tiempo y los botones */}
+            <h1>Timer Pomodoro</h1>
+            <h2>{formatTime(timeLeft)}</h2>
+            <button onClick={toggleTimer}>
+                {isRunning ? 'Pausar' : 'Iniciar'}
+            </button>
+            <button onClick={resetTimer}>
+                Reiniciar
+            </button>
         </div>
     );
 }
