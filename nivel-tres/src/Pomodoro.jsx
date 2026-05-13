@@ -100,11 +100,30 @@ function Pomodoro() {
             }
         }
     }
+    // Barra de progreso
+    const progress = mode === "work" ? (workMins * 60 - timeLeft) / (workMins * 60) : (breakMins * 60 - timeLeft) / (breakMins * 60);
+    const percentage = Math.floor(progress * 100);
+
+    // useEffect para reproducir sonido al finalizar el timer
+    useEffect(() => {
+        if (timeLeft === 0) {
+            try {
+                const sound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+                sound.play();
+            } catch (error) {
+                console.error("Error al reproducir el sonido:", error);
+            }
+        }
+    }, [timeLeft]);
+    // Return
     return (
         <div>
             <h1>Timer Pomodoro</h1>
             <h3>Modo: {mode === "work" ? 'Trabajo' : 'Descanso'}</h3>
             <h2>{formatTime(timeLeft)}</h2>
+            <div style={{ background: '#fff', borderRadius: '10px', overflow: 'hidden', margin: '0 auto', marginBottom: '20px', width: '50%' }}>
+                <div style={{ width: `${percentage}%`, background: mode === "work" ? '#e25f89' : '#81c9ea', height: '20px' }}></div>
+            </div>
             <button className="timer-btn" onClick={toggleTimer}>
                 {isRunning ? 'Pausar' : 'Iniciar'}
             </button>
